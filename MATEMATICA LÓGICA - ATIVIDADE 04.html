@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Matemática Lógica - Profª Adriana Bett Terebinto</title>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --accent: #ff9800;
+            --success: #2ecc71;
+            --error: #e74c3c;
+            --bg: #fffde7;
+        }
+
+        body, html { 
+            height: 100%; margin: 0; overflow: hidden; 
+            font-family: 'Comic Sans MS', sans-serif; background-color: var(--bg);
+        }
+
+        /* 1. Cabeçalho de Identificação */
+        .header-prof {
+            background: var(--primary); color: white;
+            padding: 8px 20px; font-size: 0.9rem;
+            display: flex; justify-content: space-between; align-items: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .main-wrapper {
+            display: flex; flex-direction: column; align-items: center;
+            height: calc(100vh - 70px); padding: 10px; box-sizing: border-box;
+        }
+
+        .box { 
+            background: white; border: 5px solid #ffc107; border-radius: 25px; 
+            padding: 15px 25px; width: 95%; max-width: 650px; 
+            text-align: center; box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            display: flex; flex-direction: column; height: 100%;
+        }
+
+        #num_pergunta { font-size: 1.1rem; color: #f57f17; font-weight: bold; margin-bottom: 5px; }
+        h2 { font-size: 1.3rem; margin: 5px 0; color: var(--primary); }
+
+        /* Lista de Contas com Scroll Interno */
+        #lista-contas {
+            flex-grow: 1; overflow-y: auto; padding: 5px; margin: 10px 0;
+            border: 1px solid #eee; border-radius: 15px;
+        }
+
+        .linha-conta {
+            display: flex; align-items: center; justify-content: space-between;
+            background: #fdfdfd; padding: 8px 15px; margin-bottom: 8px;
+            border-radius: 12px; border: 1px solid #fff9c4;
+        }
+
+        .texto-conta { font-size: 1.5rem; font-weight: bold; color: #333; }
+
+        .btn-check {
+            padding: 6px 15px; border: 2px solid #ddd; border-radius: 8px;
+            cursor: pointer; font-weight: bold; font-size: 0.85rem; transition: 0.2s;
+        }
+        
+        .selected { background-color: var(--primary) !important; color: white !important; border-color: #000 !important; }
+
+        /* 3. Botão Único Finalizar */
+        .btn-finalizar {
+            background-color: var(--success); color: white; padding: 12px;
+            border: none; border-radius: 10px; font-weight: bold;
+            cursor: pointer; font-size: 1.1rem; width: 100%;
+        }
+
+        /* 7. Janela Modal de Resultado */
+        #modal {
+            display: none; position: fixed; z-index: 1000;
+            left: 0; top: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85); align-items: center; justify-content: center;
+        }
+
+        .modal-content {
+            background: white; padding: 25px; border-radius: 30px;
+            text-align: center; max-width: 400px; width: 85%;
+            box-shadow: 0 5px 25px rgba(0,0,0,0.5); 
+            animation: surgir 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes surgir { from {transform: scale(0.5); opacity: 0;} to {transform: scale(1); opacity: 1;} }
+
+        /* 6. Nota Gigante */
+        .nota-valor { font-size: 6rem; font-weight: 900; margin: 10px 0; line-height: 1; }
+        
+        /* 8. Relatório Interno */
+        .relatorio-caixa {
+            text-align: left; background: #f1f8e9; padding: 10px;
+            border-radius: 15px; font-size: 0.9rem; max-height: 120px;
+            overflow-y: auto; margin: 15px 0; border: 1px solid #c5e1a5;
+        }
+
+        .btn-reinicio { background: var(--accent); color: white; border: none; padding: 10px 20px; border-radius: 10px; cursor: pointer; font-weight: bold; }
+
+        /* 2. Rodapé */
+        .footer-id {
+            text-align: center; font-size: 0.75rem; color: #7f8c8d; 
+            padding: 5px; background: white; border-top: 1px solid #ddd;
+        }
+
+        /* Custom Scroll */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-thumb { background: #ffc107; border-radius: 10px; }
+    </style>
+</head>
+<body>
+
+<div class="header-prof">
+    <span>Desafio de Matemática Lógica</span>
+    <span><strong>PROFª ADRIANA BETT TEREBINTO</strong></span>
+</div>
+
+<div class="main-wrapper">
+    <div class="box">
+        <div id="num_pergunta">Responda todas as operações</div>
+        <h2>A conta está correta?</h2>
+        
+        <div id="lista-contas">
+            </div>
+
+        <button class="btn-finalizar" onclick="finalizar()">✅ FINALIZAR E VER NOTA</button>
+    </div>
+</div>
+
+<div class="footer-id">
+    Identificação: Material Pedagógico - Profª Adriana Bett Terebinto © 2024
+</div>
+
+<div id="modal">
+    <div class="modal-content">
+        <h3 style="margin:0; color: #555;">Sua Nota Final</h3>
+        <div id="display-nota" class="nota-valor">0</div>
+        <div id="feedback-txt" style="font-weight: bold; margin-bottom: 10px;"></div>
+        
+        <div class="relatorio-caixa" id="relatorio-lista"></div>
+        
+        <p style="font-size: 0.85rem; font-weight: bold; color: var(--primary);">
+            Profª Adriana Bett Terebinto
+        </p>
+        <button class="btn-reinicio" onclick="location.reload()">JOGAR NOVAMENTE</button>
+    </div>
+</div>
+
+<script>
+    const bancoDados = [
+        { c: "5 + 5 = 10", r: true },
+        { c: "10 - 3 = 6", r: false },
+        { c: "2 + 8 = 10", r: true },
+        { c: "15 - 5 = 10", r: true },
+        { c: "20 + 10 = 40", r: false },
+        { c: "9 - 4 = 5", r: true },
+        { c: "4 + 4 = 9", r: false },
+        { c: "12 + 0 = 12", r: true },
+        { c: "10 + 10 = 100", r: false },
+        { c: "50 - 25 = 25", r: true }
+    ];
+
+    let respostasUsuario = new Array(bancoDados.length).fill(null);
+    const container = document.getElementById("lista-contas");
+
+    bancoDados.forEach((item, index) => {
+        const div = document.createElement("div");
+        div.className = "linha-conta";
+        div.innerHTML = `
+            <div class="texto-conta">${item.c}</div>
+            <div style="display:flex; gap:5px;">
+                <button id="v-${index}" class="btn-check" onclick="escolher(${index}, true)">SIM</button>
+                <button id="f-${index}" class="btn-check" onclick="escolher(${index}, false)">NÃO</button>
+            </div>
+        `;
+        container.appendChild(div);
+    });
+
+    function escolher(idx, val) {
+        respostasUsuario[idx] = val;
+        document.getElementById(`v-${idx}`).classList.remove('selected');
+        document.getElementById(`f-${idx}`).classList.remove('selected');
+        const idAtivo = val ? `v-${idx}` : `f-${idx}`;
+        document.getElementById(idAtivo).classList.add('selected');
+    }
+
+    function finalizar() {
+        if (respostasUsuario.includes(null)) {
+            alert("⚠️ Profª Adriana avisa: Responda todas as contas antes de finalizar!");
+            return;
+        }
+
+        let nota = 0;
+        let htmlRelatorio = "";
+
+        bancoDados.forEach((item, i) => {
+            if (respostasUsuario[i] === item.r) {
+                nota++;
+                htmlRelatorio += `<div style="color:#2e7d32"><b>${i+1}.</b> Correto! (${item.c})</div>`;
+            } else {
+                htmlRelatorio += `<div style="color:#c62828"><b>${i+1}.</b> Errado! (${item.c})</div>`;
+            }
+        });
+
+        // Configuração do Modal
+        const displayNota = document.getElementById("display-nota");
+        const feedbackTxt = document.getElementById("feedback-txt");
+        
+        displayNota.innerText = nota;
+        document.getElementById("relatorio-lista").innerHTML = htmlRelatorio;
+
+        // Cores Dinâmicas da Nota
+        if (nota >= 8) {
+            displayNota.style.color = "#2ecc71";
+            feedbackTxt.innerText = "🌟 Incrível! Você é fera!";
+        } else if (nota >= 5) {
+            displayNota.style.color = "#f39c12";
+            feedbackTxt.innerText = "👍 Muito bem! Quase lá!";
+        } else {
+            displayNota.style.color = "#e74c3c";
+            feedbackTxt.innerText = "📚 Vamos praticar mais um pouco?";
+        }
+
+        document.getElementById("modal").style.display = "flex";
+    }
+</script>
+
+</body>
+</html>
